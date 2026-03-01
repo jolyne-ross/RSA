@@ -5,7 +5,7 @@ using namespace std;
 
 void testGMPreadWrite() {
     keySet testKey;
-    testKey.path = filesystem::path("test_keys.txt");
+    testKey.path = filesystem::path(".");
 
     testKey.PU.k = mpz_class(12345); testKey.PR.k = mpz_class(67890); 
     testKey.PU.n = mpz_class(99999); testKey.PR.n = testKey.PU.n;
