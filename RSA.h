@@ -29,7 +29,7 @@ public:
 private:
     keySet* keys;
 
-    static void _writeKey(const keySet& key);
+    static void _writeKey(const keySet& set);
     
     friend void testGMPreadWrite();
 };
