@@ -152,7 +152,7 @@ string RSA::Encrypt(const key& publickey, const string& plaintext) {
     for(size_t i=0; i<plaintext.size(); i+=blockSize) {
         string block = plaintext.substr(i, blockSize);
 
-        // left padding of 0s (prevents import from stripping them during decrypt, and keeps each block size the same)
+        // left padding of 0s (prevents import from stripping them during decrypt as it would w/ right padding, and keeps each block size the same)
         if (block.size() < blockSize)
             block.insert(0, blockSize-block.size(), '\0');
         
