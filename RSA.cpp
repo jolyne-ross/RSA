@@ -187,3 +187,46 @@ string RSA::Encrypt(const key& publickey, const string& plaintext) {
     return ciphertext;
 }
 
+
+// Convert string to a number, divide into blocks < n, use mzt_powm_sec on each, return as string
+string RSA::Decrypt(const key& privatekey, const string& ciphertext) {
+    size_t nBytes = (mpz_sizeinbase(privatekey.n, 2)+7)/8; // ceiling division: (a+b-1)/8
+    size_t blockSize = nBytes-1; // ensures blocksize < n
+
+    string plaintext = "";
+    for(size_t i=0; i<ciphertext.size(); i+=blockSize) {
+        string block = ciphertext.substr(i, blockSize);
+
+        mpz_t C, M;
+        mpz_init(C);
+        mpz_import(
+            C, // int to put into
+            block.size(), // string size
+            1, // most significant bytes come first when reading
+            1, // size of each element
+            0, // use native endianness
+            0, // bits to skip
+            block.c_str() // data start
+        );
+
+        mpz_powm_sec(M, C, privatekey.k, privatekey.n);
+
+        size_t count;
+        char* buffer = (char*) mpz_export(
+            nullptr, // GMP will auto allocate
+            &count, // running store of size
+            1,
+            1,
+            0,
+            0,
+            M
+        );
+
+        plaintext.append(string(buffer, count)); // add to ciphertext
+
+        mpz_clears(C, M, nullptr);
+        free(buffer); // export uses malloc, so have to use free; see Custom_Allocation page
+    }
+
+    return plaintext;
+}
