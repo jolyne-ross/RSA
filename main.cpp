@@ -10,23 +10,23 @@ int main() {
         genNew = true;
     cout<<"Key Source: "<<((genNew)? "Generation" : "Read From Files in ./")<<"\n\n";
 
-    RSA rsa("./", 1024, genNew);
+    keySet set;
+    (genNew) ? RSA::buildKey("./", &set, 1024) : RSA::getKey("./", &set);
 
     cout<<"Input a plaintext: ";
     string plain;
     while(getline(cin, plain)) {
         cout<<"\nplaintext:  "<<plain<<"\n";
 
-        string cipher = rsa.Encrypt(plain);
+        string cipher = RSA::Encrypt(set.PU, plain);
         cout<<"ciphertext: "<<cipher<<"\n";
         cout<<"ciphertext: ";
         for (unsigned char c : cipher)
-            cout << hex << setw(2) << setfill('0') << (int)c;
+            cout <<"0x"<< hex << setw(2) << setfill('0') << (int)c<<" ";
         cout << dec << '\n';
 
-        plain = rsa.Decrypt(cipher);
+        plain = RSA::Decrypt(set.PR, cipher);
         cout<<"plaintext:  "<<plain<<"\n";
-
 
         cout<<"\nInput a plaintext: ";
     }
