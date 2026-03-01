@@ -2,19 +2,34 @@
 #include "RSA.h"
 
 int main() {
-    RSA rsa("./", 1024, true);
-    string plain = "Talia Jolyne Ross RSA Encryption Implementation for C4476.";
-    std::cout<<"plaintext:  "<<plain<<"\n";
+    bool genNew = false;
+    string res;
+    cout<<"Generate new keys? [y/N] ";
+    getline(cin, res);
+    if(res == "y" || res=="Y")
+        genNew = true;
+    cout<<"Key Source: "<<((genNew)? "Generation" : "Read From Files in ./")<<"\n\n";
 
-    string cipher = rsa.Encrypt(plain);
-    std::cout<<"ciphertext: "<<cipher<<"\n";
-    std::cout<<"ciphertext: ";
-    for (unsigned char c : cipher)
-        std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)c;
-     std::cout << std::dec << '\n';
+    RSA rsa("./", 1024, genNew);
 
-    plain = rsa.Decrypt(cipher);
-    std::cout<<"plaintext:  "<<plain<<"\n";
+    cout<<"Input a plaintext: ";
+    string plain;
+    while(getline(cin, plain)) {
+        cout<<"\nplaintext:  "<<plain<<"\n";
+
+        string cipher = rsa.Encrypt(plain);
+        cout<<"ciphertext: "<<cipher<<"\n";
+        cout<<"ciphertext: ";
+        for (unsigned char c : cipher)
+            cout << hex << setw(2) << setfill('0') << (int)c;
+        cout << dec << '\n';
+
+        plain = rsa.Decrypt(cipher);
+        cout<<"plaintext:  "<<plain<<"\n";
+
+
+        cout<<"\nInput a plaintext: ";
+    }
 
     return 0;
 }

@@ -4,7 +4,6 @@
 using namespace std;
 
 // File system Functions
-/*
 void RSA::getKey(filesystem::path keyPath, keySet* out) {
     out->path = keyPath;
     mpz_inits(out->PU.k, out->PU.n, out->PR.k, out->PR.n);
@@ -13,7 +12,8 @@ void RSA::getKey(filesystem::path keyPath, keySet* out) {
     if (!in)
         throw invalid_argument("Cannot open Public File");
     string tmp1, tmp2;
-    in >> tmp1 >> tmp2;
+    getline(in, tmp1);
+    getline(in, tmp2);
     mpz_set_str(out->PU.k, tmp1.c_str(), 10);
     mpz_set_str(out->PU.n, tmp2.c_str(), 10);
 
@@ -27,7 +27,8 @@ void RSA::getKey(filesystem::path keyPath, keySet* out) {
         throw invalid_argument("Cannot open Private File");
     
     tmp1 = ""; tmp2 = "";
-    in >> tmp1 >> tmp2;
+    getline(in, tmp1);
+    getline(in, tmp2);
     mpz_set_str(out->PR.k, tmp1.c_str(), 10);
     mpz_set_str(out->PR.n, tmp2.c_str(), 10);
 
@@ -36,31 +37,6 @@ void RSA::getKey(filesystem::path keyPath, keySet* out) {
     
     in.close();
 }
-
-
-void RSA::_writeKey(const keySet& set) {
-    ofstream f(set.path / "public.txt");
-    if (!f) 
-        throw invalid_argument("Cannot open public file");
-    
-    f << mpz_get_str(0, 10, set.PU.k) << "\n" << mpz_get_str(0, 10, set.PU.n) << "\n";
-
-    if(f.fail())
-        throw runtime_error("Key file write failed");
-    f.close();
-
-
-    f = ofstream(set.path / "private.txt");
-    if (!f) 
-        throw invalid_argument("Cannot open private file");
-    
-    f << mpz_get_str(0, 10, set.PR.k) << "\n" << mpz_get_str(0, 10, set.PR.n) << "\n";
-
-    if(f.fail())
-        throw runtime_error("Key file write failed");
-    f.close();
-}
-*/
 
 
 // Cryptographic Functions
