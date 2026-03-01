@@ -152,8 +152,13 @@ string RSA::Encrypt(const key& publickey, const string& plaintext) {
     for(size_t i=0; i<plaintext.size(); i+=blockSize) {
         string block = plaintext.substr(i, blockSize);
 
+        // left padding of 0s (prevents import from stripping them during decrypt, and keeps each block size the same)
+        if (block.size() < blockSize)
+            block.insert(0, blockSize-block.size(), '\0');
+        
+
         mpz_t M, C;
-        mpz_init(M);
+        mpz_inits(M, C, nullptr);
         mpz_import(
             M, // int to put into
             block.size(), // string size
@@ -177,7 +182,7 @@ string RSA::Encrypt(const key& publickey, const string& plaintext) {
             C
         );
 
-        ciphertext.append(string(buffer, count)); // add to ciphertext
+        ciphertext.append(buffer, count); // add to ciphertext
 
         mpz_clears(M, C, nullptr);
         free(buffer); // export uses malloc, so have to use free; see Custom_Allocation page
@@ -190,14 +195,13 @@ string RSA::Encrypt(const key& publickey, const string& plaintext) {
 // Convert string to a number, divide into blocks < n, use mzt_powm_sec on each, return as string
 string RSA::Decrypt(const key& privatekey, const string& ciphertext) {
     size_t nBytes = (mpz_sizeinbase(privatekey.n, 2)+7)/8; // ceiling division: (a+b-1)/8
-    size_t blockSize = nBytes-1; // ensures blocksize < n
 
     string plaintext = "";
-    for(size_t i=0; i<ciphertext.size(); i+=blockSize) {
-        string block = ciphertext.substr(i, blockSize);
+    for(size_t i=0; i<ciphertext.size(); i+=nBytes) {
+        string block = ciphertext.substr(i, nBytes);
 
         mpz_t C, M;
-        mpz_init(C);
+        mpz_inits(C, M, nullptr);
         mpz_import(
             C, // int to put into
             block.size(), // string size
@@ -220,8 +224,14 @@ string RSA::Decrypt(const key& privatekey, const string& ciphertext) {
             0,
             M
         );
+        string out(buffer, count);
 
-        plaintext.append(string(buffer, count)); // add to ciphertext
+        // strip 0s
+        size_t pos = out.find_first_not_of('\0');
+        if(pos!=string::npos)
+            out.erase(0, pos);
+        
+        plaintext.append(out); // add to ciphertext
 
         mpz_clears(C, M, nullptr);
         free(buffer); // export uses malloc, so have to use free; see Custom_Allocation page
