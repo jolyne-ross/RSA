@@ -5,7 +5,8 @@
 #include <gmpxx.h>
 using namespace std;
 
-struct key { mpz_class k; mpz_class n; };
+// using mpz_class and thus gmpxx as it massively simplifies i/o opertations through providing a link to regular c++ data-types
+struct key { mpz_class k; mpz_class n; }; 
 struct keySet {filesystem::path path; key PU; key PR; };
 
 class RSA {
@@ -17,10 +18,10 @@ public:
 
     filesystem::path getKeyPath() const { return keys.path; }
 
-    string Encrypt (string plaintext) const { Encrypt(keys.PU, plaintext); } // use the class member key (gotten from the constructors)
+    string Encrypt (string plaintext) const { return Encrypt(keys.PU, plaintext); } // use the class member key (gotten from the constructors)
     static string Encrypt(const key& publicKey, const string& plaintext); // input your own
 
-    string Decrypt (string ciphertext) const { Decrypt(keys.PR, ciphertext); } // use the class member key
+    string Decrypt (string ciphertext) const { return Decrypt(keys.PR, ciphertext); } // use the class member key
     static string Decrypt(const key& privatekey, const string& ciphertext); // input your own
 
     static keySet buildKey(filesystem::path keyOutput); // writes key to file
@@ -30,4 +31,6 @@ private:
     keySet keys;
 
     static void _writeKey(const keySet& key);
+    
+    friend void testGMPreadWrite();
 };
