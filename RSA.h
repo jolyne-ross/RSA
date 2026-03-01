@@ -2,33 +2,32 @@
 #pragma once
 #include <filesystem>
 #include <string>
-#include <gmpxx.h>
+#include <gmp.h>
 using namespace std;
 
-// using mpz_class and thus gmpxx as it massively simplifies i/o opertations through providing a link to regular c++ data-types
-struct key { mpz_class k; mpz_class n; }; 
-struct keySet {filesystem::path path; key PU; key PR; };
+struct key { mpz_t k; mpz_t n; }; 
+struct keySet { filesystem::path path; key PU; key PR; };
 
 class RSA {
 public:
-    RSA(filesystem::path keyPath, bool writeNew = false) {
-        if (writeNew) keys = buildKey(keyPath);
-        else keys = getKey(keyPath);
+    RSA(filesystem::path keyPath, uint bits = 1024, bool writeNew = false) {
+        if (writeNew) buildKey(keyPath, keys, bits);
+        else getKey(keyPath, keys);
     }
 
-    filesystem::path getKeyPath() const { return keys.path; }
+    filesystem::path getKeyPath() const { return keys->path; }
 
-    string Encrypt (string plaintext) const { return Encrypt(keys.PU, plaintext); } // use the class member key (gotten from the constructors)
+    string Encrypt (const string& plaintext) const { return Encrypt(keys->PU, plaintext); } // use the class member key (gotten from the constructors)
     static string Encrypt(const key& publicKey, const string& plaintext); // input your own
 
-    string Decrypt (string ciphertext) const { return Decrypt(keys.PR, ciphertext); } // use the class member key
+    string Decrypt (const string& ciphertext) const { return Decrypt(keys->PR, ciphertext); } // use the class member key
     static string Decrypt(const key& privatekey, const string& ciphertext); // input your own
 
-    static keySet buildKey(filesystem::path keyOutput); // writes key to file
-    static keySet getKey(filesystem::path keyPath);
+    static void buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eChoice = 65537); // writes key to file
+    static void getKey(filesystem::path keyPath, keySet* out);
 
 private:
-    keySet keys;
+    keySet* keys;
 
     static void _writeKey(const keySet& key);
     
