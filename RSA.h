@@ -12,7 +12,7 @@ class RSA {
 public:
     RSA(filesystem::path keyPath, uint bits = 1024, bool writeNew = true) {
         if (writeNew) buildKey(keyPath, &keys, bits);
-        else getKey(keyPath, &keys);
+        //else getKey(keyPath, &keys);
     }
 
     filesystem::path getKeyPath() const { return keys.path; }
@@ -24,7 +24,7 @@ public:
     static string Decrypt(const key& privatekey, const string& ciphertext); // input your own
 
     static void buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eChoice = 65537); // writes key to file
-    static void getKey(filesystem::path keyPath, keySet* out);
+    // static void getKey(filesystem::path keyPath, keySet* out);
 
 private:
     keySet keys;
