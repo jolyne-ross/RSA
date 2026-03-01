@@ -69,7 +69,7 @@ void RSA::buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eCho
     // PRIME GENERATION
     bits = bits/2;
     mpz_t p,q;
-    mpz_inits(p, q);
+    mpz_inits(p, q, nullptr);
 
     gmp_randstate_t rand;
     gmp_randinit_default(rand);
@@ -88,7 +88,7 @@ void RSA::buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eCho
 
     // N AND TOTIENT CALCULATION
     mpz_t n, totient;
-    mpz_inits(n, totient);
+    mpz_inits(n, totient, nullptr);
 
     mpz_mul(n, p, q); // n = p*q
 
@@ -98,11 +98,11 @@ void RSA::buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eCho
     mpz_mul(totient, p, q); // totient = (p-1)(q-1)
     
     // cleanup
-    mpz_clears(p, q);
+    mpz_clears(p, q, nullptr);
     gmp_randclear(rand);
 
     mpz_t e, d;
-    mpz_inits(e, d);
+    mpz_inits(e, d, nullptr);
     mpz_set_ui(e, eChoice); // reccomended e choice
 
     if(!mpz_invert(d, e, totient))
@@ -110,18 +110,21 @@ void RSA::buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eCho
 
     // KEY INIT AND SETTING
     out->path = keyOutput;
-    mpz_inits(out->PU.k, out->PU.n, out->PR.k, out->PR.n);
+    mpz_inits(out->PU.k, out->PU.n, out->PR.k, out->PR.n, nullptr);
     mpz_set(out->PU.k, e); mpz_set(out->PU.n, n); mpz_set(out->PR.k, d); mpz_set(out->PR.n, n);
 
     // clean up
-    mpz_clears(e, d, totient, n);
+    mpz_clears(e, d, totient, n, nullptr);
 
     // WRITE TO FILE, no building functions??? so just writing here
+    filesystem::create_directories(keyOutput);
     ofstream f(out->path / "public.txt");
     if (!f) 
         throw invalid_argument("Cannot open public file");
-    
-    f << mpz_get_str(0, 10, out->PU.k) << "\n" << mpz_get_str(0, 10, out->PU.n) << "\n";
+
+    char* tmp1 = mpz_get_str(nullptr, 10, out->PU.k);
+    char* tmp2 = mpz_get_str(nullptr, 10, out->PU.n);
+    f << tmp1 << "\n" << tmp2 << "\n";
 
     if(f.fail())
         throw runtime_error("Key file write failed");
@@ -132,7 +135,9 @@ void RSA::buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eCho
     if (!f) 
         throw invalid_argument("Cannot open private file");
     
-    f << mpz_get_str(0, 10, out->PR.k) << "\n" << mpz_get_str(0, 10, out->PR.n) << "\n";
+    tmp1 = mpz_get_str(nullptr, 10, out->PR.k);
+    tmp2 = mpz_get_str(nullptr, 10, out->PR.n);
+    f << tmp1 << "\n" << tmp2 << "\n";
 
     if(f.fail())
         throw runtime_error("Key file write failed");
