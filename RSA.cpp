@@ -143,3 +143,47 @@ void RSA::buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eCho
         throw runtime_error("Key file write failed");
     f.close();
 }
+
+// Convert string to a number, divide into blocks < n, use mzt_powm_sec on each, return as string
+string RSA::Encrypt(const key& publickey, const string& plaintext) {
+    size_t nBytes = (mpz_sizeinbase(publickey.n, 2)+7)/8; // ceiling division: (a+b-1)/8
+    size_t blockSize = nBytes-1; // ensures blocksize < n
+
+    string ciphertext = "";
+    for(size_t i=0; i<plaintext.size(); i+=blockSize) {
+        string block = plaintext.substr(i, blockSize);
+
+        mpz_t M, C;
+        mpz_init(M);
+        mpz_import(
+            M, // int to put into
+            block.size(), // string size
+            1, // most significant bytes come first when reading
+            1, // size of each element
+            0, // use native endianness
+            0, // bits to skip
+            block.c_str() // data start
+        );
+
+        mpz_powm_sec(C, M, publickey.k, publickey.n);
+
+        size_t count;
+        char* buffer = (char*) mpz_export(
+            nullptr, // GMP will auto allocate
+            &count, // running store of size
+            1,
+            1,
+            0,
+            0,
+            C
+        );
+
+        ciphertext.append(string(buffer, count)); // add to ciphertext
+
+        mpz_clears(M, C, nullptr);
+        free(buffer); // export uses malloc, so have to use free; see Custom_Allocation page
+    }
+
+    return ciphertext;
+}
+

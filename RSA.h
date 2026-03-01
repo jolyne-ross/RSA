@@ -10,7 +10,7 @@ struct keySet { filesystem::path path; key PU; key PR; };
 
 class RSA {
 public:
-    RSA(filesystem::path keyPath, uint bits = 1024, bool writeNew = false) {
+    RSA(filesystem::path keyPath, uint bits = 1024, bool writeNew = true) {
         if (writeNew) buildKey(keyPath, &keys, bits);
         else getKey(keyPath, &keys);
     }
