@@ -13,9 +13,11 @@ int main() {
     keySet set;
     (genNew) ? RSA::buildKey("./", &set, 1024) : RSA::getKey("./", &set);
 
-    cout<<"Input a plaintext: ";
+    cout<<"Input a plaintext ('exit' to exit): ";
     string plain;
     while(getline(cin, plain)) {
+        if(plain == "exit") break;
+
         cout<<"\nplaintext:  "<<plain<<"\n";
 
         string cipher = RSA::Encrypt(set.PU, plain);
