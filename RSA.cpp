@@ -128,11 +128,6 @@ string RSA::Encrypt(const key& publickey, const string& plaintext) {
     for(size_t i=0; i<plaintext.size(); i+=blockSize) {
         string block = plaintext.substr(i, blockSize);
 
-        // left padding of 0s (prevents import from stripping them during decrypt as it would w/ right padding, and keeps each block size the same)
-        if (block.size() < blockSize)
-            block.insert(0, blockSize-block.size(), '\0');
-        
-
         mpz_t M, C;
         mpz_inits(M, C, nullptr);
         mpz_import(
@@ -200,14 +195,8 @@ string RSA::Decrypt(const key& privatekey, const string& ciphertext) {
             0,
             M
         );
-        string out(buffer, count);
-
-        // strip 0s
-        size_t pos = out.find_first_not_of('\0');
-        if(pos!=string::npos)
-            out.erase(0, pos);
         
-        plaintext.append(out); // add to ciphertext
+        plaintext.append(buffer, count); // add to ciphertext
 
         mpz_clears(C, M, nullptr);
         free(buffer); // export uses malloc, so have to use free; see Custom_Allocation page
