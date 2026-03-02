@@ -153,7 +153,10 @@ string RSA::Encrypt(const key& publickey, const string& plaintext) {
             C
         );
 
-        ciphertext.append(buffer, count); // add to ciphertext
+        string out(nBytes-count, '\0');
+        out.append(buffer, count);
+
+        ciphertext.append(out); // add to ciphertext
 
         mpz_clears(M, C, nullptr);
         free(buffer); // export uses malloc, so have to use free; see Custom_Allocation page
@@ -195,7 +198,7 @@ string RSA::Decrypt(const key& privatekey, const string& ciphertext) {
             0,
             M
         );
-        
+
         plaintext.append(buffer, count); // add to ciphertext
 
         mpz_clears(C, M, nullptr);
