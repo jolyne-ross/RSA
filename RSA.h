@@ -1,4 +1,3 @@
-// Basic header file (guessing atp)
 #pragma once
 #include <filesystem>
 #include <string>
@@ -15,9 +14,7 @@ public:
         else getKey(keyPath, &keys);
     }
 
-    ~RSA() {
-        mpz_clears(keys.PR.k, keys.PR.n, keys.PU.k, keys.PU.n); // getting rid of keySet
-    }
+    ~RSA() { mpz_clears(keys.PR.k, keys.PR.n, keys.PU.k, keys.PU.n); } // getting rid of keySet
 
     filesystem::path getKeyPath() const { return keys.path; }
     
