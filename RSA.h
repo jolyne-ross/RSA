@@ -15,15 +15,19 @@ public:
         else getKey(keyPath, &keys);
     }
 
+    ~RSA() {
+        mpz_clears(keys.PR.k, keys.PR.n, keys.PU.k, keys.PU.n); // getting rid of keySet
+    }
+
     filesystem::path getKeyPath() const { return keys.path; }
+    
+    string Encrypt (const string& plaintext) const { return Encrypt(keys.PU, plaintext); } 
+    static string Encrypt(const key& publicKey, const string& plaintext);
 
-    string Encrypt (const string& plaintext) const { return Encrypt(keys.PU, plaintext); } // use the class member key (gotten from the constructors)
-    static string Encrypt(const key& publicKey, const string& plaintext); // input your own
+    string Decrypt (const string& ciphertext) const { return Decrypt(keys.PR, ciphertext); }
+    static string Decrypt(const key& privatekey, const string& ciphertext);
 
-    string Decrypt (const string& ciphertext) const { return Decrypt(keys.PR, ciphertext); } // use the class member key
-    static string Decrypt(const key& privatekey, const string& ciphertext); // input your own
-
-    static void buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eChoice = 65537); // writes key to file
+    static void buildKey(filesystem::path keyOutput, keySet* out, uint bits, uint eChoice = 65537);
     static void getKey(filesystem::path keyPath, keySet* out);
 
 private:

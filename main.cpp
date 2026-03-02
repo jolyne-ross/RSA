@@ -31,5 +31,7 @@ int main() {
         cout<<"\nInput a plaintext: ";
     }
 
+    mpz_clears(set.PR.k, set.PR.n, set.PU.k, set.PU.n); // getting rid of keySet set.
+
     return 0;
 }
